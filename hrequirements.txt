@@ -1,0 +1,12 @@
+# Used by pip to install required python packages
+# Usage: pip install -r requirements.txt
+
+Flask>=1.0.0
+request
+google
+newspaper3k
+beautifulsoup4==4.9.1
+lxml==4.5.1
+nltk==3.5
+regex==2020.6.8
+urllib3==1.25.9
