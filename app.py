@@ -46,7 +46,7 @@ def get_bot_response():
     namess = soup.find_all('a')
     ra = (lista_palavras)
     # CRIAR A LISTA DE LINKS SITE RFB
-    list = []
+    listr = []
     for link in links:
         texto = str(link.get_text()).lower().replace('ã', 'a').replace('-', ' ').replace('ç', 'c').split()
         #print(len(texto))
@@ -55,12 +55,12 @@ def get_bot_response():
         urls = str(link.get('href')).lower().replace('/', ' ').replace('-', ' ').replace('.', ' ').split()
         #print(len(urls))
         if entrada in texto:
-            list.append(url)
+            listr.append(url)
         for i in range(0, ar):
             if lista_palavras[i] in texto:
-                list.append(url)
+                listr.append(url)
             elif lista_palavras[i] in urls:
-                list.append(url)
+                listr.append(url)
 
     listag = []
     rec = 'site:receita.economia.gov.br intitle:' + msg
@@ -78,25 +78,21 @@ def get_bot_response():
     #print(listago)
     #print(len(listago))
     qo = int(len(listago))
-    #print(list)
-    #print(len(list))
-    conj=set(list + listago)
+    #print(listr)
+    #print(len(listr))
+    listaunida = listago + listr
+    conj = list(set(listaunida))
     #print(conj)
     #print(len(conj))
     #print(type(conj))
 
-    s = conj
-    p = []
-    for m in s:
-        p.append(m)
-
     #print(p)
     #print(len(p))
-    j = len(p)
+    j = len(conj)
 
     reports2 = []
     for r in range(0, j):
-        ia = str(p[r])
+        ia = str(conj[r])
         article = Article(ia, language="pt")
         article.download()
         article.parse()
