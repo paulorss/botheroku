@@ -39,7 +39,7 @@ def get_bot_response():
     ax = str(lista_palavras[0:ar])
     e = str(ax).replace(',', ' ').strip('[]')
     e.strip("'")
-    page = requests.get(html)
+    page = requests.get(html, timeout=7)
     soup = BeautifulSoup(page.content, 'lxml')
     cla = soup.find(class_='searchResults')
     links = cla.find_all('a')
