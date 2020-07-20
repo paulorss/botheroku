@@ -32,7 +32,7 @@ from chatterbot.conversation import Statement
 
 
 
-logging.basicConfig(filename="Log_Test_File.txt", level=logging.INFO, filemode='a')
+#logging.basicConfig(filename="Log_Test_File.txt", level=logging.INFO, filemode='a')
 
 app = Flask(__name__)
 
