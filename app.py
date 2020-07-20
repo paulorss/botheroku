@@ -37,6 +37,8 @@ searchbot = ChatBot(
             'import_path': "chatterbot.logic.BestMatch",
         },
     ],
+    storage_adapter="chatterbot.storage.MongoDatabaseAdapter",
+    database_uri="mongodb+srv://P15l4r4b2rt4:P15l4r4b2rt4@botheroku.j2haj.gcp.mongodb.net/botheroku?retryWrites=true&w=majority"
     read_only=True
 )
 
