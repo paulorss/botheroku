@@ -113,7 +113,7 @@ searchbot = ChatBot(
     #database_uri='sqlite:///database.db',
     # statement_comparison_function=levenshtein_distance,
     # response_selection_method=get_first_response
-    # read_only=True
+    read_only=True
 )
 
 
@@ -215,7 +215,7 @@ def get_bot_response():
             qo = int(len(listago))
             # print(listr)
             # print(len(listr))
-            listaunida = listago + listr
+            listaunida = listago #+ listr
             conj = list(set(listaunida))
             # print(conj)
             # print(len(conj))
