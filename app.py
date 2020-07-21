@@ -145,7 +145,6 @@ def get_bot_response():
             # print(conj)
             # print(len(conj))
             # print(type(conj))
-
             # print(p)
             # print(len(p))
             j = len(conj)
