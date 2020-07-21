@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
+import unidecode
+from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
-from chatterbot.response_selection import *
-from chatterbot.comparisons import *
+from chatterbot.logic import LogicAdapter
+from chatterbot.response_selection import get_first_response
+from chatterbot.comparisons import levenshtein_distance
+from chatterbot.response_selection import *  # get_first_response
+from chatterbot.comparisons import *  # levenshtein_distance
 from chatterbot import *
 import csv
+import json
+import sys
+import os
 from flask import Flask, render_template, request
 from bs4 import BeautifulSoup
 import requests
@@ -13,9 +21,14 @@ from newspaper import Article
 from newspaper import news_pool
 from googlesearch import search
 import wikipedia
-#import urllib3
-#from chatterbot.adapters import Adapter
-#from chatterbot.storage import StorageAdapter
+from logging import *
+import logging
+import urllib3
+import sys
+from chatterbot.adapters import Adapter
+from chatterbot.storage import StorageAdapter
+from chatterbot.search import IndexedTextSearch
+from chatterbot.conversation import Statement
 
 #logging.basicConfig(filename="Log_Test_File.txt", level=logging.INFO, filemode='a')
 
@@ -25,31 +38,30 @@ searchbot = ChatBot(
     "Chatterbot",
     input_adapter="chatterbot.input.VariableInputTypeAdapter",
     output_adapter="chatterbot.output.OutputAdapter",
-    # storage_adapter="chatterbot.storage.MongoDatabaseAdapter",
-    # filters=[get_recent_repeated_responses],
-    preprocessors=[
-        'chatterbot.preprocessors.clean_whitespace',
-        'chatterbot.preprocessors.convert_to_ascii'
-        # 'custom_preprocessors.PreprocessorCustom1'
-    ],
-    logic_adapters=[
-        {
-            'import_path': "chatterbot.logic.BestMatch",
-        },
-    ],
-    storage_adapter="chatterbot.storage.MongoDatabaseAdapter",
-    database_uri="mongodb+srv://P15l4r4b2rt4:P15l4r4b2rt4@botheroku.j2haj.gcp.mongodb.net/botheroku?retryWrites=true&w=majority"
-    read_only=True
+        logic_adapters = [
+                             'chatterbot.logic.MathematicalEvaluation',
+                             {'import_path': 'chatterbot.logic.BestMatch',
+                              'default_response': 'I am sorry, but I do not understand.',
+                              'maximum_similarity_threshold': 0.90},
+                             'chatterbot.logic.BestMatch'
+                         ],
+                         preprocessors = [
+    'chatterbot.preprocessors.clean_whitespace',
+    'chatterbot.preprocessors.convert_to_ascii'
+]
 )
 
 trainer = ListTrainer(searchbot)
 
 conv = open('chats.csv', encoding='utf-8').readlines()
+# convex = open('export.json').readlines()
 
 trainer.train(conv)
+# trainer.train(convex)
+# trainer.train(convirpf)
+# trainer.train(convcpf)
 
-
-trainer.export_for_training('./export.json')
+#trainer.export_for_training('./export.json')
 
 
 @app.route("/")
@@ -58,6 +70,7 @@ def index():
 
 
 @app.route("/get")
+# function for the bot response
 def get_bot_response():
     while True:
         userText = request.args.get('msg')
@@ -66,12 +79,12 @@ def get_bot_response():
         f = csv.writer(open('inputs.csv', 'a', encoding='utf-8'))
         f.writerow([msg])
         response = searchbot.get_response(userText)
-        if float(response.confidence) >= 0.5:
+        if float(response.confidence) >= 0.7:
             return str(searchbot.get_response(userText))
         elif userText == str('NÃO'):
             return str('Refaça a pergunta, por favor!')
         elif userText == str("SIM"):
-            return str("Agradecemos o seu contato!")
+            return str("Agradecemos o seu contato")
         elif float(response.confidence) == 0.0:
             entrada = msg
             # print(entrada)
@@ -99,7 +112,7 @@ def get_bot_response():
             e = str(ax).replace(',', ' ').strip('[]')
             e.strip("'")
             headers = {'User-Agent': 'Mozilla/5.0'}
-            page = requests.get(html, headers=headers, verify=False, stream=False, timeout=7)
+            page = requests.get(html, headers=headers, verify=False, stream=False, timeout=5)
             soup = BeautifulSoup(page.content, 'lxml')
             cla = soup.find(class_='searchResults')
             links = cla.find_all('a')
@@ -124,7 +137,7 @@ def get_bot_response():
 
             listag = []
             rec = 'site:receita.economia.gov.br intitle:' + msg + " -filetype:pdf -.pdf"
-            for urla in search(rec, tld='com.br', lang='pt-br', stop=4, pause=10):
+            for urla in search(rec, tld='com.br', lang='pt-br', stop=4, pause=5):
                 listag.append(urla)
 
             g = int(len(listag))
@@ -140,18 +153,19 @@ def get_bot_response():
             qo = int(len(listago))
             # print(listr)
             # print(len(listr))
-            listaunida = listago #+ listr
+            listaunida = listago + listr
             conj = list(set(listaunida))
             # print(conj)
             # print(len(conj))
             # print(type(conj))
+
             # print(p)
             # print(len(p))
             j = len(conj)
 
             reports2 = []
-            news_pool.set(reports2)#, threads_per_source=2)
-            news_pool.join()
+            # news_pool.set(reports2)#, threads_per_source=2)
+            # news_pool.join()
             for r in range(0, j):
 
                 try:
